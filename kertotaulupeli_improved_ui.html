@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kertotaulupeli</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        body {
+            font-family: 'Comic Neue', sans-serif;
+            background-color: #ffefd5;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #ff6347;
+            font-size: 2.5rem;
+        }
+        .game-container {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 90%;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 2px solid #ff6347;
+        }
+        input {
+            padding: 12px;
+            font-size: 1.5rem;
+            margin-top: 15px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid #ff6347;
+            border-radius: 8px;
+        }
+        .feedback {
+            margin-top: 15px;
+            font-size: 1.2rem;
+            color: #008080;
+        }
+        .summary {
+            margin-top: 20px;
+            font-size: 1.3rem;
+            color: #ff4500;
+        }
+        button {
+            padding: 12px 24px;
+            background-color: #ff6347;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:disabled {
+            background-color: #ccc;
+        }
+        button:hover {
+            background-color: #ff4500;
+        }
+        p {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Kertotaulupeli</h1>
+    <div class="game-container">
+        <div id="question-container">
+            <p id="example"></p>
+            <p id="question"></p>
+            <input type="tel" id="answer" inputmode="numeric" pattern="[0-9]*" placeholder="Syötä vastaus" />
+            <button onclick="submitAnswer()">Vastaa</button>
+        </div>
+        <p class="feedback" id="feedback"></p>
+        <p class="summary" id="summary"></p>
+    </div>
+
+    <script>
+        const questions = [];
+        const correctAnswers = [];
+        let currentQuestionIndex = 0;
+        let correctCount = 0;
+        let startTime;
+
+        // List of fun animal-themed scenarios
+        const animalExamples = [
+            "Jos {0} koiralla on {1} luuta, kuinka monta luuta on yhteensä?",
+            "Jos {0} kissalla on {1} kalaa, kuinka monta kalaa kissoilla on yhteensä?",
+            "Jos {0} linnulla on {1} matoa, kuinka monta matoa linnuilla on yhteensä?",
+            "Jos {0} jäniksellä on {1} porkkanaa, kuinka monta porkkanaa jäniksillä on yhteensä?",
+            "Jos {0} lehmällä on {1} nurmikasaa, kuinka monta nurmikasaa lehmillä on yhteensä?",
+            "Jos {0} elefantilla on {1} pähkinää, kuinka monta pähkinää elefanteilla on yhteensä?",
+            "Jos {0} leijonalla on {1} pihviä, kuinka monta pihviä leijonilla on yhteensä?",
+            "Jos {0} apinalla on {1} banaania, kuinka monta banaania apinoilla on yhteensä?",
+            "Jos {0} oravalla on {1} tammenterhoa, kuinka monta tammenterhoa oravilla on yhteensä?",
+            "Jos {0} pingviinillä on {1} kalaa, kuinka monta kalaa pingviineillä on yhteensä?",
+            "Jos {0} hylkeellä on {1} simpukkaa, kuinka monta simpukkaa hylkeillä on yhteensä?"
+        ];
+
+        // Luo satunnaisia kertotauluja (0-10) ja dynaamisia eläinteemaisia esimerkkejä
+        for (let i = 0; i <= 10; i++) {
+            for (let j = 0; j <= 10; j++) {
+                const exampleTemplate = animalExamples[Math.floor(Math.random() * animalExamples.length)];
+                const example = exampleTemplate.replace("{0}", i).replace("{1}", j);
+                questions.push({
+                    question: `${i} x ${j}`,
+                    answer: i * j,
+                    example: example
+                });
+            }
+        }
+
+        // Sekoita kysymykset
+        questions.sort(() => Math.random() - 0.5);
+
+        function startGame() {
+            currentQuestionIndex = 0;
+            correctCount = 0;
+            correctAnswers.length = 0;
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                const currentQuestion = questions[currentQuestionIndex];
+                document.getElementById('question').textContent = currentQuestion.question;
+                document.getElementById('example').textContent = currentQuestion.example;
+                document.getElementById('feedback').textContent = '';
+                document.getElementById('answer').value = '';
+                document.getElementById('answer').focus();
+                startTime = new Date();
+            }
+        }
+
+        function submitAnswer() {
+            const answerInput = document.getElementById('answer').value;
+            if (answerInput === '') return;
+
+            const endTime = new Date();
+            const timeTaken = (endTime - startTime) / 1000; // sekunneissa
+            const currentQuestion = questions[currentQuestionIndex];
+            const correctAnswer = currentQuestion.answer;
+
+            if (parseInt(answerInput) === correctAnswer) {
+                correctCount++;
+                document.getElementById('feedback').textContent = `Oikein! Vastasit ${timeTaken.toFixed(1)} sekunnissa.`;
+            } else {
+                document.getElementById('feedback').textContent = `Väärin! Oikea vastaus on ${correctAnswer}.`;
+            }
+
+            correctAnswers.push({
+                question: currentQuestion.question,
+                correct: parseInt(answerInput) === correctAnswer
+            });
+
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex % 5 === 0) {
+                showSummary();
+            } else {
+                nextQuestion();
+            }
+        }
+
+        function showSummary() {
+            let summary = 'Yhteenveto: ';
+            correctAnswers.forEach((item, index) => {
+                summary += `<br>${item.question}: ${item.correct ? 'Oikein' : 'Väärin'}`;
+            });
+
+            document.getElementById('summary').innerHTML = summary;
+            if (currentQuestionIndex < questions.length) {
+                setTimeout(nextQuestion, 3000);
+            } else {
+                document.getElementById('summary').innerHTML += '<br>Peli päättyi! Hyvin tehty!';
+            }
+        }
+
+        startGame();
+    </script>
+
+</body>
+</html>
