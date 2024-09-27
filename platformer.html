@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pallonmuotoiset Seikkailijat - Tasohyppely</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #a3d9ff;
+        }
+        #gameCanvas {
+            background-color: #fff;
+            border-radius: 10px;
+            width: 100vw;
+            height: 100vh;
+        }
+        .character-selection {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        .character-option {
+            width: 80px;
+            height: 80px;
+            margin: 20px;
+            background-image: url('A_group_of_round,_cute_characters_with_big_express.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        canvas {
+            display: block;
+            background-image: url('A_group_of_round,_cute_characters_with_big_express.png');
+            background-size: cover;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameCanvas">
+        <div class="character-selection" id="characterSelection">
+            <div>Valitse hahmo:</div>
+            <div class="character-option" id="character1"></div>
+        </div>
+        <canvas id="game"></canvas>
+    </div>
+    <script>
+        let selectedCharacter;
+        let canvas = document.getElementById("game");
+        let ctx = canvas.getContext("2d");
+        let character = {
+            x: 50,
+            y: 300,
+            width: 50,
+            height: 50,
+            dy: 0,
+            gravity: 0.8,
+            jumpForce: -12,
+            grounded: true,
+            image: new Image()
+        };
+        character.image.src = 'A_group_of_round,_cute_characters_with_big_express.png';
+        let obstacles = [];
+        let gameStarted = false;
+
+        document.getElementById('character1').addEventListener('click', function() {
+            selectedCharacter = character;
+            document.getElementById('characterSelection').style.display = 'none';
+            gameStarted = true;
+            gameLoop();
+        });
+
+        function jump() {
+            if (character.grounded) {
+                character.dy = character.jumpForce;
+                character.grounded = false;
+            }
+        }
+
+        document.addEventListener('touchstart', function() {
+            if (gameStarted) jump();
+        });
+
+        function gameLoop() {
+            if (!gameStarted) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            character.dy += character.gravity;
+            character.y += character.dy;
+
+            if (character.y + character.height >= canvas.height) {
+                character.y = canvas.height - character.height;
+                character.grounded = true;
+            }
+
+            ctx.drawImage(character.image, character.x, character.y, character.width, character.height);
+
+            requestAnimationFrame(gameLoop);
+        }
+    </script>
+</body>
+</html>
