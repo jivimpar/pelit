@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pallonmuotoiset Seikkailijat - Tasohyppely</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #a3d9ff;
+        }
+        #gameCanvas {
+            background-color: #fff;
+            border-radius: 10px;
+            width: 100vw;
+            height: 100vh;
+        }
+        .character-selection {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+        }
+        .character-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .character-option {
+            width: 80px;
+            height: 80px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 50%;
+            background-image: url('A_group_of_round,_cute_characters_with_big_express.png');
+            background-size: 300% 300%;
+            background-repeat: no-repeat;
+        }
+        #character1 { background-position: 0% 0%; }
+        #character2 { background-position: 33% 0%; }
+        #character3 { background-position: 66% 0%; }
+        #character4 { background-position: 100% 0%; }
+        #character5 { background-position: 0% 33%; }
+        #character6 { background-position: 33% 33%; }
+        #character7 { background-position: 66% 33%; }
+        #character8 { background-position: 100% 33%; }
+        #character9 { background-position: 0% 66%; }
+
+        canvas {
+            display: block;
+            background-color: #a3d9ff;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameCanvas">
+        <div class="character-selection" id="characterSelection">
+            <div>Valitse hahmo:</div>
+            <div class="character-options">
+                <div class="character-option" id="character1"></div>
+                <div class="character-option" id="character2"></div>
+                <div class="character-option" id="character3"></div>
+                <div class="character-option" id="character4"></div>
+                <div class="character-option" id="character5"></div>
+                <div class="character-option" id="character6"></div>
+                <div class="character-option" id="character7"></div>
+                <div class="character-option" id="character8"></div>
+                <div class="character-option" id="character9"></div>
+            </div>
+        </div>
+        <canvas id="game"></canvas>
+    </div>
+    <script>
+        let selectedCharacter;
+        let canvas = document.getElementById("game");
+        let ctx = canvas.getContext("2d");
+        let character = {
+            x: 50,
+            y: 300,
+            width: 50,
+            height: 50,
+            dy: 0,
+            gravity: 0.8,
+            jumpForce: -12,
+            grounded: true,
+            img: new Image()
+        };
+        let gameStarted = false;
+
+        // Character selection logic
+        const characterOptions = document.querySelectorAll('.character-option');
+        characterOptions.forEach((option, index) => {
+            option.addEventListener('click', function() {
+                // Load the specific character image from the sprite (simulated as loading different characters)
+                character.img.src = 'A_group_of_round,_cute_characters_with_big_express.png';
+                document.getElementById('characterSelection').style.display = 'none';
+                gameStarted = true;
+                gameLoop();
+            });
+        });
+
+        function jump() {
+            if (character.grounded) {
+                character.dy = character.jumpForce;
+                character.grounded = false;
+            }
+        }
+
+        document.addEventListener('touchstart', function() {
+            if (gameStarted) jump();
+        });
+
+        function gameLoop() {
+            if (!gameStarted) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            character.dy += character.gravity;
+            character.y += character.dy;
+
+            if (character.y + character.height >= canvas.height) {
+                character.y = canvas.height - character.height;
+                character.grounded = true;
+            }
+
+            ctx.drawImage(character.img, 0, 0, 100, 100, character.x, character.y, character.width, character.height);
+
+            requestAnimationFrame(gameLoop);
+        }
+    </script>
+</body>
+</html>
